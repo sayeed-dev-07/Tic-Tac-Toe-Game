@@ -30,7 +30,11 @@ const getPlayerInfo = () => {
 
     
   };
-
+function disabledBtns(){
+    buttons.forEach(button=>{
+        button.disabled = true;
+    })
+}
 
 const gameBoard = (() => {
 
@@ -56,15 +60,20 @@ const gameBoard = (() => {
         let pos2val = buttons[pattern[1]].innerHTML;
         let pos3val = buttons[pattern[2]].innerHTML;
         if(pos1val && pos1val === pos2val && pos1val === pos3val){
-            
-            
+            gameOn = false;
+            resetBtn.textContent = `Reset`
+            resetBtn.disabled = false
             if (plyrs.PlayerOne.playerMark === pos1val) {
                 statusBtn.textContent = `${plyrs.PlayerOne.playerName} Won!`
+                
             }else{
                 statusBtn.textContent = `${plyrs.PlayerTwo.playerName} Won`
+                
             }
         }else if(checkDraw()){
             statusBtn.textContent = `Draw!`
+            resetBtn.textContent = `Reset`
+            resetBtn.disabled = false
         }
       }
   };
@@ -79,19 +88,24 @@ const GameStart = ()=>{
     playerStatus = true;
     let players = getPlayerInfo();
     if(playerStatus){
+        gameOn = true;
+    strtBtn.classList.add('hidden')
+    resetBtn.classList.remove('hidden')
+    resetBtn.textContent = 'Playing'
+    resetBtn.disabled = true;
         
     statusBtn.textContent = `${players.PlayerOne.playerName}'s Turn '${players.PlayerOne.playerMark}'`
     buttons.forEach(button => {
        
             button.addEventListener('click',(e)=>{
         
-                if(!button.textContent){
+                if(!button.textContent && gameOn){
                  if (playerOneStatus) {
                      button.textContent = `${players.PlayerOne.playerMark}`
                      statusBtn.textContent = `${players.PlayerTwo.playerName}'s Turn '${players.PlayerTwo.playerMark}'`
                      playerOneStatus = false;
                     }else{
-                     button.textContent = `${players.PlayerTwo.playerMark}`
+                     button.textContent =` ${players.PlayerTwo.playerMark}`
                     statusBtn.textContent = `${players.PlayerOne.playerName}'s Turn '${players.PlayerOne.playerMark}'`
                     playerOneStatus = true;
                     } 
@@ -107,5 +121,17 @@ const GameStart = ()=>{
         return;
     }
 }
+const resetBtn = document.querySelector('.reset')
 const strtBtn = document.querySelector('.start');
-strtBtn.addEventListener('click',GameStart)
+strtBtn.addEventListener('click',()=>{
+    GameStart();
+    
+})
+
+resetBtn.addEventListener('click',()=>{
+    buttons.forEach(button =>{
+        button.textContent = ''
+    })
+    GameStart()
+    
+})
