@@ -1,68 +1,111 @@
-const statusTxt = document.querySelector('.status');
-const resetBtn = document.querySelector('#reset');
 const buttons = document.querySelectorAll('.button');
 
-let playerOne = true;
+const createPlayer = function (name, mark) {
+  let playerName = name;
+  let playerMark = mark;
+  return { playerName, playerMark };
+};
+
+let playerStatus = true;
+
+const getPlayerInfo = () => {
+    let playerOneName = prompt("Enter 1st Player Name : ");
+    if (playerOneName.trim() == '') {
+        playerStatus = false;
+        alert('Enter a valid name!')
+        return null;
+        
+    }
+    let playerTwoName = prompt("Enter 2nd Player Name : ");
+    if(playerTwoName.trim() == ''){
+        playerStatus = false;
+        alert('Enter a valid name !')
+        return null;
+    }
+    let PlayerOne = createPlayer(playerOneName, 'X')
+    let PlayerTwo = createPlayer(playerTwoName, 'O')
+    return{PlayerOne, PlayerTwo}
+   
+    
+
+    
+  };
 
 
-const GameBoard = (function () {
-    let pattern1 = [1, 2, 3]
-    let pattern2 = [1, 4, 7]
-    let pattern3 = [1, 5, 9]
-    let pattern4 = [7, 8, 9]
-    let pattern5 = [3, 6, 9]
-    let pattern6 = [4, 5, 6]
-    let pattern7 = [2, 5, 8]
-    let pattern8 = [3, 5, 7]
+const gameBoard = (() => {
 
-    return {pattern1, pattern2, pattern3, pattern4, pattern5, pattern6, pattern7, pattern8};
-})();
 
-function checkwinner(gameBoard, userInput){
-    for (const pattern in gameBoard) {
-        let arr = gameBoard[pattern];
-        for (let i = 0; i < arr.length; i++) {
-           
+    const checkDraw = () => {
+        return [...buttons].every(button => button.textContent.trim() !== "");
+    };
+
+  const checkWinner = (plyrs) => {
+    const patterns = [
+        [0, 1, 2],
+        [0, 3, 6],
+        [0, 4, 8],
+        [6, 7, 8],
+        [2, 5, 8],
+        [3, 4, 5],
+        [1, 4, 7],
+        [2, 4, 6]
+      ]
+
+      for (const pattern of patterns) {
+        let pos1val = buttons[pattern[0]].innerHTML;
+        let pos2val = buttons[pattern[1]].innerHTML;
+        let pos3val = buttons[pattern[2]].innerHTML;
+        if(pos1val && pos1val === pos2val && pos1val === pos3val){
+            
+            
+            if (plyrs.PlayerOne.playerMark === pos1val) {
+                statusBtn.textContent = `${plyrs.PlayerOne.playerName} Won!`
+            }else{
+                statusBtn.textContent = `${plyrs.PlayerTwo.playerName} Won`
+            }
+        }else if(checkDraw()){
+            statusBtn.textContent = `Draw!`
         }
+      }
+  };
+  return {checkWinner}
+
+
+})();
+let gameOn = true;
+let playerOneStatus = true;
+const statusBtn = document.querySelector('.status')
+const GameStart = ()=>{
+    playerStatus = true;
+    let players = getPlayerInfo();
+    if(playerStatus){
+        
+    statusBtn.textContent = `${players.PlayerOne.playerName}'s Turn '${players.PlayerOne.playerMark}'`
+    buttons.forEach(button => {
+       
+            button.addEventListener('click',(e)=>{
+        
+                if(!button.textContent){
+                 if (playerOneStatus) {
+                     button.textContent = `${players.PlayerOne.playerMark}`
+                     statusBtn.textContent = `${players.PlayerTwo.playerName}'s Turn '${players.PlayerTwo.playerMark}'`
+                     playerOneStatus = false;
+                    }else{
+                     button.textContent = `${players.PlayerTwo.playerMark}`
+                    statusBtn.textContent = `${players.PlayerOne.playerName}'s Turn '${players.PlayerOne.playerMark}'`
+                    playerOneStatus = true;
+                    } 
+                    
+                }else{
+                 return;
+                }
+                gameBoard.checkWinner(players)
+             })
+             
+    });
+    }else{
+        return;
     }
 }
-
-
-let playerInfo =  {
-    player1:[],
-    player2: []
-}
-    
-
-buttons.forEach(button =>{
-    button.addEventListener('click',(e)=>{
-        let id = parseInt(e.target.id);
-        
-        if(playerOne){
-            statusTxt.textContent = `O's Turn`
-            button.textContent = 'X'
-            playerOne = false;
-            playerInfo.player1.push(id)
-        }else{
-            button.textContent = 'O'
-            statusTxt.textContent = `X's Turn`
-            playerOne = true;
-            playerInfo.player2.push(id)
-        }
-        button.disabled = true;
-        console.log(`Player 1 :${playerInfo.player1}`);
-        console.log(`Player 2 :${playerInfo.player2}`);
-        
-    })
-})
-
-resetBtn.addEventListener('click',()=>{
-    buttons.forEach(button=>{
-        button.textContent = '';
-        button.disabled = false;
-        statusTxt.textContent = `X's Turn`
-    })
-    
-})
-
-
+const strtBtn = document.querySelector('.start');
+strtBtn.addEventListener('click',GameStart)
